@@ -1,0 +1,24 @@
+include templates/head
+include templates/nav
+include templates/footer
+
+doctype html
+html
+  +head
+  body(class=(user ? 'admin' : ''))
+    +nav
+    block messages
+      if flashes
+        .flash-messages
+          - const categories = Object.keys(flashes)
+          each category in categories
+            each message in flashes[category]
+              .flash(class=`flash--${category}`)
+                .container
+                  p.flash__text!= message
+                  button.flash__remove(onClick="this.parentElement.parentElement.remove()") &times;
+    block body
+      .container
+        h1 Express MVC Boilerplate
+        p It's working!
+    +footer

@@ -1,0 +1,1 @@
+// Any scripts in this folder will be transpiled to ES5, minified and placed in the public/js folder.

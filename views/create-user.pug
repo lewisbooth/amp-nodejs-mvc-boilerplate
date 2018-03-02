@@ -1,0 +1,12 @@
+extends layout
+
+block body
+  .container
+    h2 Create a User
+    p Use this form to quickly create a user account with no validation.
+    form(method="POST")
+      label(for="email") Email
+      input(type="email" name="email")
+      label(for="password") Password
+      input(type="password" name="password" required)
+      button(type="submit") Create User

@@ -1,0 +1,8 @@
+// Add a <link rel="preload" src="..."> to the <head> for each critical font
+// This allows supported browsers to request the font before parsing CSS
+
+@font-face
+  font-family "Open Sans Regular"
+  font-weight 400
+  src url(/fonts/opensans-regular-webfont.woff2) format("woff2"),
+      url(/fonts/opensans-regular-webfont.woff) format("woff")

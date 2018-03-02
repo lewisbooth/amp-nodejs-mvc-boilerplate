@@ -1,0 +1,81 @@
+// Inlined in the <head> for faster page renders
+// Try to keep the compiled CSS below 10kb for maximum performance
+
+@import 'variables/variables'
+@import 'critical/reset'
+@import 'critical/fonts'
+@import 'critical/typography'
+@import 'critical/grid'
+@import 'critical/buttons'
+
+.nav
+  background-color primary-color
+  width 100%
+
+  .container
+    display flex
+    justify-content space-between
+    align-items center
+
+  &-logo
+    height 28px
+    width auto
+    padding 1rem 0
+
+  &-menu
+    display flex
+    
+    li
+
+      a
+        text-decoration none 
+        color white
+        padding 1rem
+        display inline-block
+        margin-left 1rem
+        box-sizing border-box
+
+        &.active
+          background-color #333
+
+        &:hover
+          background-color #333
+
+.flash-messages
+  display block
+
+  .flash
+    display block
+    background-color red
+    color white
+
+    &--success
+      background-color green
+
+      .flash__remove
+        background-color green
+
+    .container
+      text-align center
+
+    &__text
+      margin 0
+      display inline-block
+
+    &__remove
+      padding 0 .75rem
+      margin 0
+      float right
+      font-size 2rem
+      background-color red
+
+      &:hover
+        cursor pointer
+
+form
+  display flex
+  flex-direction column
+  width 300px
+  background-color #eee
+  padding 2rem 2rem 0 2rem
+  margin-bottom 2rem

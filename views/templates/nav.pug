@@ -1,0 +1,24 @@
+mixin nav
+  //- Manage the nav links from here
+  - 
+    const navLinks = {
+      "Home": "/",
+      "Create User": "/create-user",
+      "Log In": "/login"
+    }
+  - const pages = Object.keys(navLinks)
+  nav.nav
+    .container
+      a(href="/")
+        img(src="/images/logos/main-logo.svg" alt="Main Logo").nav-logo
+      ul.nav-menu
+        li
+          a(href="/" class=(currentPath === "/" ? "active" : "")) Home
+        li
+          a(href="/create-user" class=(currentPath === "/create-user" ? "active" : "")) Create User
+        if user
+          li
+            a(href="/logout") Log Out
+        else
+          li
+            a(href="/login" class=(currentPath === "/login" ? "active" : "")) Log In

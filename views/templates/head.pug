@@ -1,0 +1,32 @@
+mixin head
+  head
+    title=`${title || "Express MVC Boilerplate"}`
+    meta(name="description" content=`${description || "Default Description"}`)
+    meta(http-equiv="Content-Type" content="text/html; charset=utf-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    meta(name="theme-color" content="#111111")
+    link(rel="icon" type="image/x-icon" href="favicon.ico")
+    link(rel="icon" type="image/png" sizes="16x16" href="/images/favicon/favicon-16x16.png")
+    link(rel="icon" type="image/png" sizes="32x32" href="/images/favicon/favicon-32x32.png")
+    link(rel="icon" type="image/png" sizes="96x96" href="/images/favicon/favicon-96x96.png")
+    link(rel="apple-touch-icon" sizes="152x152" href="/images/favicon/apple-icon-152x152.png")
+    meta(name="msapplication-TileColor" content="#16467B")
+    meta(name="msapplication-TileImage" content="/ms-icon-144x144.png")
+    meta(name="format-detection" content="telephone=no")
+
+    //- Preload fonts & assets linked from CSS rather than wait for CSS to download, parse and request them
+    //- Much faster page loading speed in supported browsers
+    link(rel='preload' href='/fonts/opensans-regular-webfont.woff2' as='font' type="font/woff2" crossorigin)
+
+    //- Inline critical CSS in production
+    if production
+      style
+        include ../../public/css/critical.css
+    //- Use <link> during development to allow BrowserSync to inject changes during development
+    else
+      link(rel='stylesheet' href=`/css/critical.css?ver=${cssHash}` type="text/css")
+
+    //- External non-critical styles
+    link(rel='stylesheet' href=`/css/main.css?ver=${cssHash}` type="text/css")
+
+    block extraHeaderScripts
