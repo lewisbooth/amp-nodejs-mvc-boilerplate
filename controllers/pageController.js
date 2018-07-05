@@ -12,7 +12,7 @@ exports.homepage = async (req, res) => {
   });
 };
 
-exports.login = async (req, res) => {
+exports.login = (req, res) => {
   res.render("login", {
     title: "Express MVC Boilerplate",
     description:
@@ -20,7 +20,7 @@ exports.login = async (req, res) => {
   });
 };
 
-exports.createUser = async (req, res) => {
+exports.createUser = (req, res) => {
   res.render("create-user", {
     title: "Create User",
     description:
@@ -30,7 +30,8 @@ exports.createUser = async (req, res) => {
 
 // Reference controller for creating queries
 exports.sampleQuery = async (req, res) => {
-  const users = await User.find({})
+  const users = await User
+    .find({})
     .limit(3)
     .sort({ updatedAt: -1 });
   res.render("queryResults", {

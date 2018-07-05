@@ -1,9 +1,8 @@
 const express = require("express")
+const app = express()
 const mongoose = require("mongoose")
 const session = require("express-session")
 const MongoStore = require("connect-mongo")(session)
-const passport = require("passport")
-require("./helpers/passport")
 const { promisify } = require("es6-promisify")
 const expressValidator = require("express-validator")
 const cookieParser = require('cookie-parser')
@@ -14,13 +13,18 @@ const device = require("device")
 const path = require("path")
 
 // Helper functions & middleware
+const { checkDB } = require("./helpers/checkDB")
 const { logging } = require("./helpers/logging")
+const { truncate } = require("./helpers/truncate")
 const { cacheBuster } = require("./helpers/cacheBuster")
 const errorHandlers = require("./helpers/errorHandlers")
-
-// Load routing middleware
 const routes = require("./routes/routes")
-const app = express()
+const passport = require("passport")
+require("./helpers/passport")
+
+// Load Pug templating engine
+app.set("views", "views")
+app.set("view engine", "pug")
 
 // Enable GZIP
 app.use(compression())
@@ -28,41 +32,31 @@ app.use(compression())
 // Set cache headers for static content to 1 year
 const maxAge = process.env.NODE_ENV === "production" ? 31536000 : 1
 
-// Setup static file directories
-// Static requests should be served by a reverse proxy in production (e.g. Nginx)
-app.use(express.static(path.join(__dirname, "public"), { maxAge }))
+// Serve static files
+// These should be served via reverse proxy in production (e.g. Nginx)
+app.use(express.static(process.env.PUBLIC_FOLDER, { maxAge }))
 
-// Load Pug templating engine
-app.set("views", "views")
-app.set("view engine", "pug")
+// Log dynamic requests
+app.use(logging)
 
-// Parses POST data into req.body
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
+// Throw error safely if DB is not connected
+app.use(checkDB)
 
-// Data validation library
-app.use(expressValidator())
-
-// Populates req.cookies with any cookies that came along with the request
-app.use(cookieParser())
-
-// Dynamic flash messages that are passed to the template 
-// (e.g. "Successfully logged in" or "Incorrect login details")
-app.use(flash())
-
-// Set cookies for tracking sessions
+// Session cookies
 app.use(
   session({
     secure: true,
-    secret: process.env.SECRET,
-    key: process.env.KEY,
     resave: false,
+    key: process.env.KEY,
+    secret: process.env.SECRET,
     saveUninitialized: false,
-    store: new MongoStore({ mongooseConnection: mongoose.connection })
+    store: new MongoStore({
+      mongooseConnection: mongoose.connection
+    })
   })
 )
 
-// PassportJS handles user logins
+// Load PassportJS authentication
 app.use(passport.initialize())
 app.use(passport.session())
 
@@ -72,13 +66,24 @@ app.use((req, res, next) => {
   next()
 })
 
-// Log non-static requests with a timestamp, HTTP method, path and IP address
-app.use(logging)
+// Parse POST data into req.body
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }))
 
-// Add MDS hashes to force-download new versions of scripts
+// Parse cookies into req.cookies
+app.use(cookieParser())
+
+// Dynamic flash messages are passed to the view templates 
+// (e.g. "Successfully logged in" or "Incorrect login details")
+app.use(flash())
+
+// Data validation library
+app.use(expressValidator())
+
+// Add MDS hashes to automatically version CSS/JS
 app.use(cacheBuster)
 
-// Expose variables and functions for use in Pug templates
+// Expose variables and functions to view templates
 app.use((req, res, next) => {
   // Parses the User Agent into desktop, phone, tablet, phone, bot or car
   res.locals.device = device(req.headers['user-agent']).type
@@ -90,30 +95,28 @@ app.use((req, res, next) => {
   res.locals.currentPath = req.path
   // Expose the requested query strings
   res.locals.query = req.query
+  // Safely format descriptions
+  res.locals.truncate = truncate
   // Detect production mode
   if (process.env.NODE_ENV === "production")
     res.locals.production = true
   next()
 })
 
-// Load the routes
+// Pass the request to routing middleware
 app.use("/", routes)
 
-// 404 if no routes are found
-app.use((req, res) => {
-  if (req.accepts("html") && res.status(404)) {
-    // Avoid spamming 404 console errors when sitemap is generated
-    if (!req.headers['user-agent'].includes('Node/SitemapGenerator')) {
-      console.error(`🚫  🔥  Error 404 ${req.method} ${req.path}`)
-    }
-    res.render("404")
-  }
-})
+// 404 if no routes handle the request
+app.use(errorHandlers.notFound)
 
-// Flashes Mongoose errors
+// Flash Mongoose errors
 app.use(errorHandlers.flashValidationErrors)
 
-// Render error template and avoid stacktrace leaks
+// Error page with stacktrace during development
+if (app.get('env') === 'development')
+  app.use(errorHandlers.developmentErrors)
+
+// Error page with no stacktrace in production
 app.use(errorHandlers.productionErrors)
 
 module.exports = app

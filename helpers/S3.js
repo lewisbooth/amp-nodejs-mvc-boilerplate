@@ -15,13 +15,10 @@ exports.upload = (Bucket, Key) => {
   const options = { Body, Bucket, Key }
   // Upload the file to S3
   s3.upload(options, (err, data) => {
-    if (err) {
-      console.log("🚫  Error uploading to S3")
-      console.log(err.message)
-    } else {
-      console.log("Upload successful")
-      console.log(data.Location)
-    }
+    if (err)
+      console.log("🚫  Error uploading to S3 \n" + err.message)
+    else
+      console.log("Upload successful \n" + data.Location)
   })
 }
 
@@ -32,26 +29,23 @@ exports.download = (Bucket, Key, saveFolder) => {
     // Extracts the file name from the Key, which can contain nested folders
     // e.g. /backups/archive/backup-02-12-18.tgz becomes backup-02-12-18.tgz
     const filename = Key.split("/").slice(-1).pop()
-    // Make sure the target folder exists
-    if (!fs.existsSync(saveFolder))
-      fs.mkdirSync(saveFolder)
 
-    // Generate the final save location
-    const saveFileLocation = `${saveFolder}/${filename}`
-    // Open a write stream to the target file
-    const file = fs.createWriteStream(saveFileLocation)
+    mkdirp.sync(saveFolder)
+    const pathToFile = `${saveFolder}/${filename}`
+    const file = fs.createWriteStream(pathToFile)
+
     // Download the file from S3
     const fileStream = s3.getObject(options)
     // Pipe the file through to the write stream
     fileStream.createReadStream().pipe(file)
     // When the write stream has finished, return the file path
     file.on('close', () => {
-      console.log("Successfully downloaded file to " + saveFileLocation)
-      resolve(saveFileLocation)
+      console.log("Successfully downloaded file to " + pathToFile)
+      resolve(pathToFile)
     })
     // Handle errors
     file.on('error', () => {
-      console.log("Error downloading file to " + saveFileLocation)
+      console.log("Error downloading file to " + pathToFile)
       resolve(null)
     })
   })
@@ -72,8 +66,7 @@ exports.downloadIndex = (Bucket, saveFolder) => {
       }
       // Sort bucket entries by date
       const files = data.Contents.sort((a, b) =>
-        a.LastModified - b.LastModified
-      )
+        a.LastModified - b.LastModified)
       // Console log all the entries with a selection index
       files.forEach((file, i) => {
         const time = moment(file.LastModified).fromNow()
@@ -129,12 +122,17 @@ exports.cleanBucket = (Bucket, limit) => {
 // Ask user to select which file they want via terminal input
 function userSelect(files) {
   return new Promise(resolve => {
+    const fileCount = Object.keys(files).length - 1
     // Create the readline object
-    const input = readline.createInterface(process.stdin, process.stdout, null)
+    const input = readline.createInterface(
+      process.stdin,
+      process.stdout,
+      null
+    )
     // Prints the question to stdout and waits for user input
     input.question("Select a backup entry: ", answer => {
       answer = parseInt(answer)
-      if (answer >= 0 && answer <= Object.keys(files).length - 1) {
+      if (answer >= 0 && answer <= fileCount) {
         // If the input is valid, return the selection
         selectedFile = answer
         resolve(selectedFile)
