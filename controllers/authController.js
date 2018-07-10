@@ -46,23 +46,17 @@ exports.validateRegister = (req, res, next) => {
   next()
 }
 
-exports.createUser = (req, res, next) => {
+exports.createUser = (req, res) => {
   const user = new User({
     email: req.body.email
   })
-  const register = User.register(user, req.body.password, err => {
+  User.register(user, req.body.password, err => {
     if (err) {
       req.flash("error", "Email is already taken")
       console.log(err.message)
-      res.render('create-user', {
-        title: "Create User",
-        description:
-          "Creates a user with no validation"
-        , flashes: req.flash()
-      })
-      return
+    } else {
+      req.flash("success", "User created successfully")
     }
-    req.flash("success", "User successfully created")
-    next()
+    res.redirect("back")
   })
 }

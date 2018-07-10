@@ -10,9 +10,9 @@ const FOLDERS = ["css", "js"]
 const FILE_TYPES = /\.css|\.js/
 const DEBOUNCE = 200
 
-const hashes = {}
-
 let debounce = false
+
+const hashes = {}
 
 function generateHashes() {
   if (debounce) return

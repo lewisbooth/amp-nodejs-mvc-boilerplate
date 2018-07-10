@@ -1,7 +1,7 @@
-// Inlined in the <head> for faster page renders
+// Critical CSS is inlined in the <head> tag for faster page renders
 // Try to keep the compiled CSS below 10kb for maximum performance
 
-@import 'variables/variables'
+@import 'variables'
 @import 'critical/reset'
 @import 'critical/fonts'
 @import 'critical/typography'
@@ -9,13 +9,13 @@
 @import 'critical/buttons'
 
 html
-  background-color #f6f6f6
+  background-color lightGrey
 
 body
-  background-color #fff
+  background-color white
 
 .nav
-  background-color primary-color
+  background-color offBlack
   width 100%
 
   .container
@@ -34,16 +34,15 @@ body
       a
         text-decoration none 
         color white
-        padding 1rem
+        padding 1rem 1.5rem
         display inline-block
-        margin-left 1rem
         box-sizing border-box
 
         &.active
           background-color #333
 
         &:hover
-          background-color #333
+          background-color mainBlue
 
 .flash-messages
   display block
@@ -86,6 +85,6 @@ form
   display flex
   flex-direction column
   width 300px
-  background-color #eee
+  background-color lightGrey
   padding 2rem 2rem 0 2rem
   margin-bottom 2rem

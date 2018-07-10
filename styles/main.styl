@@ -1,9 +1,14 @@
-// Main external stylesheet for non-critical styles
+// Use for non-critical (below the fold) styles
+// Will be linked as an external stylesheet
 
-@import 'variables/variables'
-@import 'main/fonts'
+@import 'variables'
 
 footer
-  margin-top 4rem
+  margin-top 3rem
   padding 1rem
-  background-color #f6f6f6
+  background-color lightGrey
+
+  .container
+    display flex
+    flex-wrap wrap
+    justify-content space-between

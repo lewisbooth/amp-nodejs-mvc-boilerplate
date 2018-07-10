@@ -1,0 +1,10 @@
+mixin flash-messages
+  if flashes
+    .flash-messages
+      - const categories = Object.keys(flashes)
+      each category in categories
+        each message in flashes[category]
+          .flash(class=`flash--${category}`)
+            .container
+              p.flash__text!= message
+              button.flash__remove(onClick="this.parentElement.parentElement.remove()") &times;

@@ -36,6 +36,9 @@ const maxAge = process.env.NODE_ENV === "production" ? 31536000 : 1
 // These should be served via reverse proxy in production (e.g. Nginx)
 app.use(express.static(process.env.PUBLIC_FOLDER, { maxAge }))
 
+// Add MDS hashes to automatically version CSS/JS
+app.use(cacheBuster)
+
 // Log dynamic requests
 app.use(logging)
 
@@ -79,9 +82,6 @@ app.use(flash())
 
 // Data validation library
 app.use(expressValidator())
-
-// Add MDS hashes to automatically version CSS/JS
-app.use(cacheBuster)
 
 // Expose variables and functions to view templates
 app.use((req, res, next) => {
