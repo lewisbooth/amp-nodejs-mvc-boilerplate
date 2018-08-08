@@ -23,10 +23,8 @@ exports.generate = () => {
   const age = currentTime - lastModified
 
   // Regenerate sitemap if it is out of date
-  if (age > TIMEOUT) {
-    console.log("Generating new sitemap...")
+  if (age > TIMEOUT)
     sitemap.start()
-  }
 
   // When the sitemap has finished, replace the local URL with the public one
   sitemap.on('done', () => {
@@ -37,9 +35,9 @@ exports.generate = () => {
       var replaceURL = data.replace(regex, PUBLIC_URL)
       fs.writeFile(SITEMAP_FILE, replaceURL, 'utf8', err => {
         if (err)
-          console.log(err)
+          console.log('Error creating sitemap.xml \n' + err)
         else
-          console.log('🤖  Successfully created sitemap.xml')
+          console.log('Successfully created sitemap.xml')
       })
     })
   })
